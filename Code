@@ -1,0 +1,171 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+int goto_view();
+int goto_edit();
+int login();
+int takeinput();
+char* strip(char[]);
+int main()
+{
+ int x=0, opt = 0;
+ while (true)
+ {
+ printf("1. View \n2. Add Entries \n3. Exit \nType 1, 2 or 3:\n");
+ scanf("%d", &opt);
+ if (opt == 1)
+ {
+ x = goto_view();
+ if (x == -1) printf("No records in the file\n");
+ }
+ else if (opt == 2)
+ x=goto_edit();
+ else if (opt == 3)
+ break;
+ else printf("Make a valid selection\n");
+ } //while
+ return 0;
+}
+int goto_edit()
+{
+ int x = 0;
+printf("ENTRIES\n");
+ x=login();
+ if (x == 0)
+ takeinput();
+ return 0;
+}
+int login()
+{
+ int ptry = 3, ret = -1;
+ char user[30];
+ char pwd[30];
+ char* ppwd;
+ while (ptry >0)
+ {
+ fflush(stdin);
+ fflush(stdin);
+ printf(""); 
+ fgets(pwd, 30, stdin);
+ fflush(stdin);
+ printf("Enter password :"); 
+ fgets(pwd, 30, stdin);
+ 
+ ppwd=strip(pwd);
+ if (strcmp(pwd, "rohit") == 0)
+ {
+ printf("Login scuccessful! You can now add entries\nType EXIT as 
+employee name to exit.");
+ 
+ ret = 0; break;
+ }
+ else
+ {
+ ptry = ptry - 1;
+ printf("You have %d tries left\n", ptry);
+ 
+ }
+ }
+ return ret;
+}
+int takeinput()
+{
+ char name[30];
+ char sid[5];
+ char proj[30];
+ int i = 0, c = 0, j = 0, k = 0;
+ FILE* fl;
+ char* pnm, * psid, * pproj;
+ fl = fopen("c:\emp.txt", "a+");
+ while (i < 30) // no use
+ {
+ printf("\n");
+ fflush(stdin);
+ printf("Enter employee name:");
+ fgets(name, 30, stdin);
+ pnm = strip(name);
+ 
+ if (strcmp(name, "EXIT") == 0) break;
+ fflush(stdin);
+ while (true) 
+ {
+ printf("Enter employee ID:");
+ fgets(sid, 5, stdin);
+ for (k=0, j = 0; (j < 5 && sid[j]!='\n'); j++) {
+ if (sid[j] >= '0' && sid[j] <= '9')
+ k = 0;
+ else k = 1;
+ } //for
+ if (k == 0) break;
+ } //while
+ psid = strip(sid);
+ fflush(stdin);
+ printf("Enter project name:");
+ fgets(proj, 30, stdin);
+ pproj = strip(proj);
+ fprintf(fl, "%s|%s|%s\n", pnm,psid, pproj);
+ i = i++;
+ 
+ }// while 30 - can be removed
+ fclose(fl);
+ return 0;
+}
+char* strip(char* str)
+{
+ int i = 0;
+ while (true)
+ {
+ 
+ if (str[i] == '\n')
+ {
+ str[i] = '\0'; break;
+ }
+ if (str[i] == '\0') break;
+ i++;
+ }
+ return str;
+}
+int goto_view()
+{
+ printf("VIEW\n");
+ printf("------------------\n");
+ int c=0, i=0, ret=-1;
+ char str[30];
+ int fld = 0;
+ FILE* fl;
+ fl = fopen("emp.txt", "r");
+ if (fl == NULL)
+ {
+ ret = 1;
+ printf("Could not open the file\n");
+ }
+ else
+ {
+ while ((c = getc(fl)) != EOF)
+ {
+ ret = 0;
+ str[i] = c;
+ 
+ if (c == '|' || c=='\n')
+ {
+ str[i] = '\0'; // end the string by putting null
+ if (fld == 0)
+ {
+ printf("Name : %s\n", str);
+ fld = 1; i = 0;
+ }
+ else if (fld == 1)
+ {
+ printf("Id : %s\n", str); fld = 2; i = 0;
+ }
+ else {
+ printf("Project : %s\n", str);
+ printf("------------------\n");
+ i = 0; fld = 0; }
+ }
+ else i++;
+ }
+ }
+ fclose(fl);
+ return ret;
+}
